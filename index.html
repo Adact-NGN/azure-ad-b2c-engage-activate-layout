@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="nb">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title key="title">Engage activate user</title>
+    <meta name="title" content="Engage activate user" />
+    <meta property="og:title" content="Engage activate user" />
+    <meta property="twitter:title" content="Engage activate user" />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/Adact-NGN/azure-ad-b2c-template/main/public/ng-logo-squared.png"
+    />
+    <meta
+      property="twitter:image"
+      content="https://raw.githubusercontent.com/Adact-NGN/azure-ad-b2c-template/main/public/ng-logo-squared.png"
+    />
+    <link
+      rel="icon"
+      href="https://raw.githubusercontent.com/Adact-NGN/azure-ad-b2c-template/main/public/favicon-32x32.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="https://raw.githubusercontent.com/Adact-NGN/azure-ad-b2c-template/main/public/apple-touch-icon.png"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Reset HTML awful base CSS -->
+    <link
+      href="https://unpkg.com/tailwindcss@3.3.6/src/css/preflight.css"
+      rel="stylesheet"
+      type="text/css"
+      data-preload="true"
+    />
+  </head>
+
+  <body>
+    <div id="main">
+      <div id="logo-wrapper">
+        <img
+          id="logo"
+          data-tenant-branding-logo="false"
+          src="https://raw.githubusercontent.com/Adact-NGN/azure-ad-b2c-template/main/public/logo.svg"
+          alt="Company Logo"
+        />
+      </div>
+      <div id="app" role="presentation">
+        <div id="api" data-name="SelfAsserted" role="main"></div>
+      </div>
+    </div>
+    <script defer async>
+      // Set the default email if provided
+      const url = new URL(window.location.href);
+      if (!!url.searchParams.get('email')) {
+        const emailInput = document.getElementById('email');
+        emailInput.value = url.searchParams.get('email');
+        emailInput.readOnly = true;
+      }
+
+      // Hijack some code:
+      const codes = {
+        INPUT: 0,
+        INTRO: 1,
+        CODE_REQUEST_SENT: 2,
+        FAILED_TO_SEND: 3,
+        CODE_SENT: 4,
+        VERIFICATION_REQUEST_SENT: 5,
+        FAILED_TO_VERIFY: 6,
+        INVALID_CODE: 7,
+        RETRY_LIMIT_EXCEEDED: 8,
+        SUCCESS: 9,
+        READONLY: 10,
+        THROTTLED: 11,
+        CODE_EXPIRED: 12
+      };
+      const orig = $element.changeVerificationControlState;
+      $element.changeVerificationControlState = function () {
+        const state = arguments[1];
+        if (state === codes.SUCCESS) {
+          const continueButton = document.getElementById('continue');
+          continueButton.style.display = 'block';
+        }
+
+        return orig.apply(this, arguments);
+      }
+    </script>
+  </body>
+  <style>
+    html {
+      font-family: Inter;
+      font-size: 16px;
+      color: #27262e;
+    }
+
+    #main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
+      width: 100%;
+      background-color: #fafafd;
+      gap: 5rem;
+    }
+
+    #logo-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: start;
+
+      img {
+        width: auto;
+        height: 100px;
+      }
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      width: 550px;
+      padding: 3.5rem 4rem 3rem 4rem;
+      border: 1px solid #eeedf6;
+      border-radius: 1.5rem;
+      background-color: #ffffff;
+    }
+
+    .heading {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 650;
+      line-height: 36px;
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0.5rem 1.125rem;
+      border-radius: 9999px;
+      color: #ffffff;
+      background-color: #1e304b !important;
+      font-weight: 500;
+    }
+
+    input {
+      border: 1px solid #c4c4d4;
+      border-radius: 0.5rem;
+      background-color: #fff;
+      width: 100%;
+      padding: 1.25rem 1.5rem;
+    }
+
+    div#api {
+      /* General styling shared between steps */
+      div.intro {
+        padding-bottom: 18px;
+
+        & p:first-child,
+        & h2:first-child {
+          text-align: center;
+          line-height: 2.25rem;
+          letter-spacing: -0.44px;
+        }
+      }
+
+      div.buttons {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 1.5rem;
+
+        &:empty {
+          display: none;
+        }
+
+        & button#cancel {
+          background-color: white !important;
+          color: #1e304b;
+          border-width: 1px;
+          border-color: #9abadf;
+        }
+
+        &.verify {
+          display: flex;
+          flex-direction: column !important;
+          gap: 0.75rem !important;
+
+          &.sendButton {
+            width: 100%;
+            color: #1e304b;
+            background-color: #c9d9ee !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          flex-direction: column;
+        }
+      }
+
+      div#attributeList {
+        & ul {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: start;
+          gap: 1.25rem;
+
+          & li {
+            width: 100%;
+          }
+
+          & .attrEntry {
+            display: flex;
+            flex-direction: column;
+            /*gap: 0.75rem;*/
+            label {
+              margin-top: 8px;
+              margin-bottom: 8px;
+              font-size: 14px;
+              color: #27262E;
+            }
+            & a {
+              font-size: 14px;
+              color: #4078b7;
+            }
+          }
+
+          & li.TextBox {
+            .verificationInfoText[aria-hidden="false"],
+            .verificationSuccessText[aria-hidden="false"],
+            .verificationErrorText[aria-hidden="false"] {
+              display: block !important;
+              margin-bottom: 1rem;
+              border-width: 1px;
+              border-radius: 12px;
+              padding: 1.5rem;
+
+              &:empty {
+                display: none;
+              }
+            }
+
+            .verificationInfoText {
+              background-color: #e7edf7;
+              border-color: #4078b7;
+            }
+
+            .verificationSuccessText {
+              background-color: #ddeee5;
+              border-color: #468871;
+            }
+
+            .verificationErrorText {
+              background-color: #fde6e3;
+              border-color: #a52c1a;
+            }
+
+            /* Hide confusing message which appears before anything is done */
+            .verificationInfoText#email_intro {
+              display: none !important;
+            }
+          }
+        }
+      }
+
+      /* First screen where selects Vipps or Manual login/signup */
+      &[data-step="login-method-selection"] {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+
+        & ul {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: start;
+          gap: 1.25rem;
+
+          & li {
+            width: 100%;
+          }
+        }
+
+        &[data-user-type="B2B"] {
+          & ul {
+            & li:first-child {
+              /* Hide Vipps login for B2B users */
+              display: none;
+            }
+          }
+        }
+      }
+
+      /* Screen after selecting Manual login/signup */
+      &[data-step="login-or-register"] {
+        form#localAccountForm {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          align-items: center;
+
+          div.entry {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+
+            width: 100%;
+
+            div.entry-item {
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+
+              & input {
+                padding: 20px 24px;
+                width: 100%;
+              }
+              & div.error p {
+                font-size: 14px;
+                color: #ff0000;
+              }
+              & div.password-label {
+                display: flex;
+                flex-direction: column;
+
+                & a {
+                  font-size: 14px;
+                  color: #4078b7;
+                }
+              }
+            }
+            div.working {
+              margin: auto;
+
+              &:empty {
+                display: none;
+              }
+            }
+          }
+          div.divider {
+            & h2 {
+              margin: auto;
+              width: fit-content;
+            }
+          }
+          div.create {
+            p {
+              text-align: center;
+
+              a#createAccount {
+                margin-left: 0.5rem;
+                color: #4078b7;
+              }
+            }
+          }
+        }
+      }
+
+      &[data-step="register-form"] {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
+
+        form {
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+        }
+
+        & .attrEntry .helpLink {
+          display: none;
+        }
+
+        div.error {
+          display: block;
+          border: 1px solid#A52C1A;
+          border-radius: 12px;
+          padding: 1.5rem;
+          background-color: #fde6e3;
+
+          &:empty {
+            display: none;
+          }
+        }
+      }
+
+      &[data-step="forgot-password-form"] {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
+
+        div.error {
+          display: block;
+          border: 1px solid#A52C1A;
+          border-radius: 12px;
+          padding: 1.5rem;
+          background-color: #fde6e3;
+
+          &:empty {
+            display: none;
+          }
+        }
+
+        div#attributeList {
+          padding-bottom: 2.5rem;
+
+          & .attrEntry .helpLink {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .helpLink.tiny {
+      display: none;
+    }
+
+    input[readonly] {
+      background-color: #FAFAFD;
+      color: #A09EB1;
+    }
+
+    button {
+      margin-top: 24px;
+    }
+
+    button.changeClaims {
+      display: none !important;
+    }
+
+    button#continue {
+      display: none;
+    }
+
+    button#cancel {
+      display: none;
+    }
+
+    .intro {
+      color: #575565  ;
+    }
+
+    #emailVerificationControl_success_message[aria-hidden="false"] {
+      display: inline-block !important;
+    }
+    #emailVerificationControl_success_message {
+      padding: 16px;
+      background: #E7EDF7;
+      border-radius: 12px;
+      border: 1px solid #4078B7;
+      margin-bottom: 28px;
+    }
+
+    /* Pure CSS loader animation */
+    /* https://theanam.github.io/css-only-loaders/ */
+
+    /*
+    The loaders use CSS custom properties (variables) to control the attributes of the loaders
+    */
+    :root {
+      --loader-width: 30px;
+      --loader-height: 30px;
+      --loader-color-primary: #ff6600;
+      --loader-color-secondary: #eee;
+      --line-width: 3px;
+      --animation-duration: 2s;
+      --loader-initial-scale: 0.1;
+    }
+
+    .working,
+    .working:before,
+    .working:after {
+      box-sizing: border-box;
+      flex-grow: 0;
+      flex-shrink: 0;
+    }
+    /*
+    In order to get optimal results, please only change the
+    variables above and don't change anything in the actual loader code
+    */
+
+    @keyframes circle-loader {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .working {
+      margin: 18px auto auto;
+      transform-origin: center center;
+      border: var(--line-width, 4px) solid var(--loader-color-secondary, #fff);
+      border-right-color: var(--loader-color-primary, #00f);
+      width: var(--loader-width, 100px);
+      height: var(--loader-height, 100px);
+      border-radius: 50%;
+      animation: circle-loader var(--animation-duration, 1s) infinite ease-out;
+    }
+  </style>
+</html>

@@ -1,0 +1,18 @@
+{
+  "LocalizedStrings": [
+    {
+      "ElementType": "UxElement",
+      "ElementId": null,
+      "StringId": "heading",
+      "Override": true,
+      "Value": "Aktiver ny bruker"
+    },
+    {
+      "ElementType": "UxElement",
+      "ElementId": null,
+      "StringId": "initial_intro",
+      "Override": true,
+      "Value": "Sjekk at e-posten din er riktig for å aktivere ny bruker."
+    }
+  ]
+}
